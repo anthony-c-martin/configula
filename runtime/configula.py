@@ -6,13 +6,7 @@ def maybe_render():
             YamlVariable.last.render()
 
 def render(obj):
-    if hasattr(type(obj), '__iter__'):
-        for o in obj:
-            o.render()
-            print("---")
-    else:
-        o.render()
-    return None
+    print(yaml.dump(obj))
 
 class YamlNode(yaml.YAMLObject):
     def __init__(self, value):
@@ -22,10 +16,16 @@ class YamlNode(yaml.YAMLObject):
 
 def yaml_node_representer(dumper, data):
     value = data.value
-    if (isinstance(value, int)):
+    if (isinstance(value, bool)):
+        return dumper.represent_bool(value)
+    elif (isinstance(value, int)):
         return dumper.represent_int(value)
     elif (isinstance(value, str)):
         return dumper.represent_str(value)
+    elif (isinstance(value, dict)):
+        return dumper.represent_dict(value)
+    elif value == None:
+        return dumper.represent_none(value)
 
     return dumper.represent_scalar("!~", data.value)
 
@@ -39,12 +39,18 @@ class YamlExpr(yaml.YAMLObject):
 
 def yaml_expr_representer(dumper, data):
     value = data.expr()
-    if (isinstance(value, int)):
+    if (isinstance(value, bool)):
+        return dumper.represent_bool(value)
+    elif (isinstance(value, int)):
         return dumper.represent_int(value)
     elif (isinstance(value, str)):
         return dumper.represent_str(value)
-    else:
-        return dumper.represent_scalar("!~", value)
+    elif (isinstance(value, dict)):
+        return dumper.represent_dict(value)
+    elif value == None:
+        return dumper.represent_none(value)
+    
+    return dumper.represent_scalar("!~", value)
     # TODO: More here!
 
 yaml.add_representer(YamlExpr, yaml_expr_representer)
@@ -55,6 +61,8 @@ class YamlVariable:
     def __init__(self, data):
         self.data = data
         YamlVariable.last = self
+    def __repr__(self):
+        return "YamlVariable(%s)" % self.data
 
     def render(self):
         print(yaml.dump(self.data))
