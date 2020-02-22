@@ -66,7 +66,7 @@ func recursiveGenerate(indent string, node *yaml.Node) string {
 	case "!!null":
 		return fmt.Sprintf("%sYamlNode(None)", indent)
 	default:
-		return fmt.Sprintf("%s", node.Tag)
+		return fmt.Sprintf("render_tag(%s, %s)", toPythonString(node.Tag), toPythonString(node.Value))
 	}
 }
 
@@ -104,7 +104,7 @@ func (s *simpleProcessor) Process(sections []Section) error {
 			fmt.Printf("%s\n", string(sections[ix].Data))
 			return err
 		}
-		sections[ix].Yaml = "YamlVariable(" + recursiveGenerate("", &node) + ")"
+		sections[ix].Yaml = recursiveGenerate("", &node)
 	}
 	return nil
 }

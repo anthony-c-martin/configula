@@ -1,0 +1,49 @@
+- apiVersion: '2015-06-15'
+  location: !arm 'resourceGroup().location'
+  name: testsa
+  properties:
+    accountType: Standard_LRS
+  type: Microsoft.Storage/storageAccounts
+- apiVersion: '2015-06-15'
+  location: !arm 'resourceGroup().location'
+  name: test-nic
+  properties:
+    ipConfigurations:
+    - name: myConfig
+      properties:
+        privateIPAllocationMethod: Dynamic
+        subnet:
+          id: !arm 'parameters(''subnetResourceId'')'
+  type: Microsoft.Network/networkInterfaces
+- apiVersion: '2019-07-01'
+  location: !arm 'resourceGroup().location'
+  name: test-vm
+  properties:
+    diagnosticsProfile:
+      bootDiagnostics:
+        enabled: true
+        storageUri: !arm 'variables(''bootDiagsUri'')]'
+    hardwareProfile:
+      vmSize: Standard_A1_v2
+    networkProfile:
+      networkInterfaces:
+      - id: !arm 'resourceId(''Microsoft.Network/networkInterfaces'', concat(parameters(''namePrefix''),''-nic''))'
+        primary: true
+        properties: null
+    osProfile:
+      adminPassword: myS3cretP@ssw0rd
+      adminUsername: !arm 'concat(parameters(''namePrefix''), ''admin'')'
+      computerName: myVm
+      windowsConfiguration:
+        provisionVMAgent: true
+    storageProfile:
+      dataDisks: []
+      imageReference:
+        offer: WindowsServer
+        publisher: MicrosoftWindowsServer
+        sku: 2016-Datacenter
+        version: latest
+      osDisk:
+        createOption: FromImage
+  type: Microsoft.Compute/virtualMachines
+

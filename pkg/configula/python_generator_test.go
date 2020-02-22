@@ -29,7 +29,7 @@ func TestGenerate(t *testing.T) {
 `
 import sys
 try:
-  from runtime.configula import (maybe_render, render, YamlExpr, YamlNode, YamlVariable)
+  from runtime.configula import (maybe_render, render, render_tag, register_tag, YamlExpr, YamlNode, YamlVariable)
 except ImportError:
   print('Can not find configula runtime!')
   sys.exit(1)
@@ -62,7 +62,7 @@ maybe_render()
 `
 import sys
 try:
-  from runtime.configula import (maybe_render, render, YamlExpr, YamlNode, YamlVariable)
+  from runtime.configula import (maybe_render, render, render_tag, register_tag, YamlExpr, YamlNode, YamlVariable)
 except ImportError:
   print('Can not find configula runtime!')
   sys.exit(1)

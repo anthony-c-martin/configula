@@ -6,13 +6,15 @@ def maybe_render():
             YamlVariable.last.render()
 
 def render(obj):
-    if hasattr(type(obj), '__iter__'):
-        for o in obj:
-            o.render()
-            print("---")
-    else:
-        o.render()
-    return None
+    print(yaml.dump(obj))
+
+extensions = {}
+def register_tag(tag, type):
+    extensions[tag] = type
+
+def render_tag(tag, value):
+    assert tag in extensions, "Unable to find tag '" + tag + "'. Did you register it with render_tag()?"
+    return extensions[tag](value)
 
 class YamlNode(yaml.YAMLObject):
     def __init__(self, value):
@@ -29,11 +31,16 @@ def represent_value(dumper, value):
         return dumper.represent_str(value)
     elif isinstance(value, dict):
         return dumper.represent_dict(value)
+    elif isinstance(value, dict):
+        return dumper.represent_dict(value)
     elif value == None:
         return dumper.represent_none(value)
-    # TODO: More here!
 
-    return dumper.represent(value)
+    # TODO understand why this is necessary
+    if hasattr(type(value), 'to_yaml'):
+        return type(value).to_yaml(dumper, value)
+
+    return dumper.represent_data(value)
 
 def yaml_node_representer(dumper, data):
     return represent_value(dumper, data.value)
@@ -57,6 +64,8 @@ class YamlVariable:
     def __init__(self, data):
         self.data = data
         YamlVariable.last = self
+    def __repr__(self):
+        return "YamlVariable(%s)" % self.data
 
     def render(self):
         print(yaml.dump(self.data))
